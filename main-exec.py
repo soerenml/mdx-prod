@@ -1,6 +1,7 @@
 from src.pipeline import mdx
 from src.trading_data import get_data
-import datetime
+from datetime import datetime
+import pandas as pd
 
 
 # Hyperparameters

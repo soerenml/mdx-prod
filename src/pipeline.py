@@ -1,12 +1,13 @@
-from trading_data import get_data
-from triple_barrier import triple_barrier_labels
-from temporian_prep import temporian_eventset
-from train_model import train
-from prediction import create_predictions
-from trader import execute_strategy
+from src.trading_data import get_data
+from src.triple_barrier import triple_barrier_labels
+from src.temporian_prep import temporian_eventset
+from src.train_model import train
+from src.prediction import create_predictions
+from src.trader import execute_strategy
 
 from datetime import datetime
 import pandas as pd
+
 
 def mdx(
     df: pd.DataFrame,
