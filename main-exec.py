@@ -49,7 +49,8 @@ for t_barrier in T_BARRIER:
                     model_summary=model_summary,
                     verbose=verbose,
                     lower_prob=x,
-                    upper_prob=z
+                    upper_prob=z,
+                    tensorboard_callback=False
                 )
 
                 hps_results['t_barrier'].append(t_barrier)
