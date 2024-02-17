@@ -100,20 +100,32 @@ def temporian_eventset(
             win = tp.duration.days(win_day)
 
             # Calculate moving average
-            x = f_var.simple_moving_average(win).prefix(f"f_{var}_ma_{win_day}_")
-            moving_stats_list.append(x)
+            moving_stats_list.append(
+                f_var
+                .simple_moving_average(win)
+                .prefix(f"f_{var}_ma_{win_day}_")
+            )
 
             # Calculate moving standard devition
-            x = f_var.moving_standard_deviation(win).prefix(f"f_{var}_sd_{win_day}_")
-            moving_stats_list.append(x)
+            moving_stats_list.append(
+                f_var
+                .moving_standard_deviation(win)
+                .prefix(f"f_{var}_sd_{win_day}_")
+            )
 
             # Calculate moving max
-            x = f_var.moving_max(win).prefix(f"f_{var}_max_{win_day}_")
-            moving_stats_list.append(x)
+            moving_stats_list.append(
+                f_var
+                .moving_max(win)
+                .prefix(f"f_{var}_max_{win_day}_")
+            )
 
             # Calculate moving min
-            x = f_var.moving_min(win).prefix(f"f_{var}_min_{win_day}_")
-            moving_stats_list.append(x)
+            moving_stats_list.append(
+                f_var
+                .moving_min(win)
+                .prefix(f"f_{var}_min_{win_day}_")
+            )
 
         feature_moving_stats = tp.glue(*moving_stats_list)
 
