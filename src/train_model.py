@@ -36,9 +36,10 @@ def train(
     if tensorboard_callback:
         model.fit(train_dataset)
     else:
-        model.fit(train_dataset, callbacks=[tensorboard_callback])
         logdir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
         tensorboard_callback = tf.keras.callbacks.TensorBoard(logdir, histogram_freq=1)
+
+        model.fit(train_dataset, callbacks=[tensorboard_callback])
 
     # Enable model summary
     model.summary() if model_summary else None
