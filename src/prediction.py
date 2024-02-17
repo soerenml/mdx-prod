@@ -9,34 +9,43 @@ def create_predictions(
     pandas_test_dataset: pd.DataFrame
 ):
     """
-    Run predictions
+    Run predictions and return a dataframe with the predicted results.
+
+    Args:
+        tf_test_dataset (tf.data.Dataset): The test dataset in TensorFlow format.
+        model (tf.keras.Model): The trained model used for predictions.
+        pandas_test_dataset (pd.DataFrame): The test dataset in pandas DataFrame format.
+
+    Returns:
+        pd.DataFrame: A dataframe containing the predicted results, including the date, close price,
+                      predicted strategy, and probability of the predicted strategy.
     """
-    
+
     # Run predictions
     predictions = model.predict(tf_test_dataset, verbose=0)
-    
+
     # Get predictions in form of a dataframe
     dicto = {'l_sell': [], 'l_hold': [], 'l_buy': []}
-    
+
     for i in predictions:
         for j in predictions[i]:
             dicto[i].append(j[0])
-    
+
     df_pred = pd.DataFrame(dicto)
-    
+
     # Get the highest probability
     df_pred['prob_strat'] = df_pred.apply(lambda x: x.max(), axis=1)
-    
+
     # Get the label name with the highest probability
     df_pred['strategy'] = pd.DataFrame(dicto).idxmax(axis=1)
-    
+
     # Get the date
     df_pred['date'] = pd.to_datetime(pandas_test_dataset['timestamp'], unit='s')
 
-    # Merge predictions with test dataset    
+    # Merge predictions with test dataset
     result_df = pd.concat([df_pred, pandas_test_dataset], axis=1)
-    
+
     # Select variables
     result_df = result_df[['date', 'close', 'strategy', 'prob_strat']]
-    
+
     return result_df

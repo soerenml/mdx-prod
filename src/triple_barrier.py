@@ -9,15 +9,37 @@ def triple_barrier_labels(
     lower: float = None,
     span: int = 100
 ) -> pd.Series:
+    """
+    Compute triple barrier labels for a given DataFrame.
 
-    def compute_std(
-        df: pd.DataFrame,
-        span: int = 100
-    ) -> pd.Series:
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+        t (int): The look forward period for computing the triple barrier.
+        devs (float): The number of standard deviations for the barrier.
+        upper (float, optional): The upper barrier value. If None, it is computed based on the standard deviation.
+        lower (float, optional): The lower barrier value. If None, it is computed based on the standard deviation.
+        span (int, optional): The span for computing the standard deviation.
+
+    Returns:
+        pd.Series: The computed triple barrier labels.
+
+    """
+    def compute_std(df: pd.DataFrame, span: int = 100) -> pd.Series:
+        """
+        Compute the rolling standard deviation of returns.
+
+        Args:
+            df (pd.DataFrame): The input DataFrame.
+            span (int, optional): The span for computing the standard deviation.
+
+        Returns:
+            pd.Series: The computed rolling standard deviation.
+
+        """
         df = df.ffill()
         returns = df.pct_change()
         return returns.ewm(span=span).std()
-    
+
     df = df.ffill()
     returns = df.pct_change()
 

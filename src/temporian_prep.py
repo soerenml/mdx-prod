@@ -7,7 +7,30 @@ def temporian_eventset(
     days_lookback: int,
     split_date: str
 ):
-    
+    """
+    Generate a temporian event set for a given DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the necessary columns.
+        days_lookback (int): The number of days to look back for creating lagged features.
+        split_date (str): The date to split the data into training and testing sets.
+
+    Returns:
+        Tuple: A tuple containing the following elements:
+            - feature_names (List[str]): The names of the generated features.
+            - label_names (List[str]): The names of the generated labels.
+            - test_dataset (pd.DataFrame): The testing dataset.
+            - train_dataset (pd.DataFrame): The training dataset.
+            - tf_test_dataset (tf.data.Dataset): The testing dataset converted to TensorFlow Dataset.
+            - tf_train_dataset (tf.data.Dataset): The training dataset converted to TensorFlow Dataset.
+    """
+    # Function code here...
+def temporian_eventset(
+    df: pd.DataFrame,
+    days_lookback: int,
+    split_date: str
+):
+
     ### Detailed specification of EventSet
     f_data = tp.event_set(
         timestamps=df['timestamp'],
@@ -40,11 +63,11 @@ def temporian_eventset(
         f_data["hold"].prefix("l_"),
         f_data["buy"].prefix("l_"),
     ]
-    
+
     # Glue features
     all_features = tp.glue(*all_features, *labels)
 
-    
+
     ### Lookback ###
     range_days_lookback = [x for x in range(1,days_lookback)]
 
@@ -62,7 +85,7 @@ def temporian_eventset(
 
     # Glue features
     all_features = tp.glue(all_features, feature_lagged_sales)
-    
+
     ### Moving statistics ###
     feature_list=['close', 'volume', 'low', 'high']
 
@@ -70,7 +93,7 @@ def temporian_eventset(
         moving_stats_list: List[tp.EventSet] = []
 
         float_sales = f_data[var].cast(tp.float32)
-        
+
         for win_day in [2, 3, 5, 7, 10, 15, 30, 60, 90, 144]:
             # Define the duration for the days
             win = tp.duration.days(win_day) # change to days if needed
@@ -103,8 +126,8 @@ def temporian_eventset(
 
     # Glue features
     all_features = tp.glue(all_features, feature_moving_stats)
-    
-    
+
+
     ### Calendar dates ###
     calendar_list: List[tp.EventSet] = []
     calendar_list.append(f_data.calendar_day_of_month())
@@ -114,7 +137,7 @@ def temporian_eventset(
 
     # Glue features
     all_features = tp.glue(all_features, feature_calendar)
-    
+
 
     from datetime import datetime
     import tensorflow as tf
@@ -143,5 +166,5 @@ def temporian_eventset(
 
     tf_test_dataset = dataset_pandas_to_tensorflow_dataset(test_dataset)
     tf_train_dataset = dataset_pandas_to_tensorflow_dataset(train_dataset)
-    
+
     return feature_names, label_names, test_dataset, train_dataset, tf_test_dataset, tf_train_dataset
