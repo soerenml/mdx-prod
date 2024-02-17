@@ -8,23 +8,21 @@ def train(
     verbose: int,
     label_names,
     model_summary,
+    tensorboard_callback: bool = False,
 ):
     """
-    Trains a boosted tree model.
+    Trains a gradient boosted trees model.
 
     Args:
         train_dataset (tf.data.Dataset): The training dataset.
-        verbose (int): Verbosity level. Controls the amount of information printed during training.
-        label_names: The names of the labels used for training.
-        model_summary: Flag indicating whether to print the model summary.
+        verbose (int): Verbosity level. 0 = silent, 1 = progress bar, 2 = one line per epoch.
+        label_names: The names of the labels.
+        model_summary: Whether to enable model summary.
+        tensorboard_callback (bool, optional): Whether to use TensorBoard callback. Defaults to False.
 
     Returns:
         tfdf.keras.GradientBoostedTreesModel: The trained model.
     """
-    # Tensorboard
-    logdir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(logdir, histogram_freq=1)
-
     # Build model
     model = tfdf.keras.GradientBoostedTreesModel(
         verbose=verbose,
@@ -35,7 +33,12 @@ def train(
     )
 
     # Fit model
-    model.fit(train_dataset, callbacks=[tensorboard_callback])
+    if tensorboard_callback:
+        model.fit(train_dataset)
+    else:
+        model.fit(train_dataset, callbacks=[tensorboard_callback])
+        logdir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(logdir, histogram_freq=1)
 
     # Enable model summary
     model.summary() if model_summary else None
