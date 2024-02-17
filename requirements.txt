@@ -4,3 +4,4 @@ pandas
 tensorflow_decision_forests
 wurlitzer
 scikit-learn
+temporian
