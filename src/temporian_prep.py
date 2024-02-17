@@ -2,6 +2,7 @@ import temporian as tp
 from typing import List
 import pandas as pd
 
+
 def temporian_eventset(
     df: pd.DataFrame,
     days_lookback: int,

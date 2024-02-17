@@ -1,4 +1,3 @@
-# Create predictions
 import tensorflow as tf
 import tensorflow_decision_forests as tfdf
 import pandas as pd
