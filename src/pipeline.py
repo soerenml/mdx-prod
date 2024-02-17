@@ -19,7 +19,23 @@ def mdx(
     lower_prob: float,
     upper_prob: float
 ):
+    """
+    Executes the MDX pipeline for trading strategy.
 
+    Args:
+        df (pd.DataFrame): Input DataFrame containing financial data.
+        barrier_length (int): Length of the barrier for triple barrier calculation.
+        barrier_std (float): Standard deviation for triple barrier calculation.
+        days_lookback (int): Number of days to look back for feature generation.
+        split_date (str): Date to split the data into training and testing sets.
+        model_summary (str): Summary of the model architecture.
+        verbose (int): Verbosity level for model training.
+        lower_prob (float): Lower probability threshold for executing trades.
+        upper_prob (float): Upper probability threshold for executing trades.
+
+    Returns:
+        tuple: A tuple containing the overall profit and the number of trades executed.
+    """
     # Calculate triple barrier
     labels = triple_barrier_labels(
         df=df['close'],
@@ -38,6 +54,7 @@ def mdx(
     df = pd.concat([df, one_hot_encoded], axis=1)
     del df['Label']
 
+    # TODO #1 - get rid of artifacts not needed
     (feature_names, label_names,
      test_dataset,
      train_dataset,
