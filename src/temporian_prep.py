@@ -1,12 +1,13 @@
 import temporian as tp
 from typing import List
 import pandas as pd
+import tensorflow as tf
 
 
 def temporian_eventset(
     df: pd.DataFrame,
     days_lookback: int,
-    split_date: str
+    split_date: str,
 ):
     """
     Generate a temporian event set for a given DataFrame.
@@ -32,7 +33,7 @@ def temporian_eventset(
     split_date: str
 ):
 
-    ### Detailed specification of EventSet
+    ### Define intial EventSet ###
     f_data = tp.event_set(
         timestamps=df['timestamp'],
         features={
@@ -51,23 +52,16 @@ def temporian_eventset(
 
     ### Raw features ###
     all_features = [
-        # LABELS
         f_data["close"].prefix("f_"),
         f_data["volume"].prefix("f_"),
         f_data["high"].prefix("f_"),
         f_data["low"].prefix("f_"),
-    ]
-
-    ### Labels ###
-    labels = [
         f_data["sell"].prefix("l_"),
         f_data["hold"].prefix("l_"),
         f_data["buy"].prefix("l_"),
     ]
 
-    # Glue features
-    all_features = tp.glue(*all_features, *labels)
-
+    all_features = tp.glue(*all_features)
 
     ### Lookback ###
     # Define the range of days to look back
@@ -85,10 +79,10 @@ def temporian_eventset(
             x = x.rename(f"f_{var}_lag_{horizon}_d")
             lagged_sales_list.append(x)
 
-        feature_lagged_sales = tp.glue(*lagged_sales_list)
+        feature_lagged = tp.glue(*lagged_sales_list)
 
     # Glue features
-    all_features = tp.glue(all_features, feature_lagged_sales)
+    all_features = tp.glue(all_features, feature_lagged)
 
     ### Moving statistics ###
     feature_list=['close', 'volume', 'low', 'high']
@@ -98,7 +92,7 @@ def temporian_eventset(
         moving_stats_list: List[tp.EventSet] = []
 
         # Select variable with placeholder `var` from f_data EventSet and cast to float32
-        float_sales = f_data[var].cast(tp.float32)
+        f_var = f_data[var].cast(tp.float32)
 
         for win_day in [2, 3, 5, 7, 10, 15, 30, 60, 90, 144]:
 
@@ -106,27 +100,19 @@ def temporian_eventset(
             win = tp.duration.days(win_day)
 
             # Calculate moving average
-            x = float_sales.simple_moving_average(win).prefix(
-                f"f_{var}_ma_{win_day}_"
-            )
+            x = f_var.simple_moving_average(win).prefix(f"f_{var}_ma_{win_day}_")
             moving_stats_list.append(x)
 
             # Calculate moving standard devition
-            x = float_sales.moving_standard_deviation(win).prefix(
-                f"f_{var}_sd_{win_day}_"
-            )
+            x = f_var.moving_standard_deviation(win).prefix(f"f_{var}_sd_{win_day}_")
             moving_stats_list.append(x)
 
             # Calculate moving max
-            x = float_sales.moving_max(win).prefix(
-                f"f_{var}_max_{win_day}_"
-            )
+            x = f_var.moving_max(win).prefix(f"f_{var}_max_{win_day}_")
             moving_stats_list.append(x)
 
             # Calculate moving min
-            x = float_sales.moving_min(win).prefix(
-                f"f_{var}_min_{win_day}_"
-            )
+            x = f_var.moving_min(win).prefix(f"f_{var}_min_{win_day}_")
             moving_stats_list.append(x)
 
         feature_moving_stats = tp.glue(*moving_stats_list)
@@ -144,11 +130,6 @@ def temporian_eventset(
 
     # Glue features
     all_features = tp.glue(all_features, feature_calendar)
-
-
-    from datetime import datetime
-    import tensorflow as tf
-    import tensorflow_decision_forests as tfdf
 
     # Create combined EventSet
     tabular = tp.glue(all_features, f_data)
@@ -169,7 +150,6 @@ def temporian_eventset(
         features = {k: df[k] for k in feature_names}
         labels = {k: df[k] for k in label_names}
         return tf.data.Dataset.from_tensor_slices((features, labels)).batch(100)
-
 
     tf_test_dataset = dataset_pandas_to_tensorflow_dataset(test_dataset)
     tf_train_dataset = dataset_pandas_to_tensorflow_dataset(train_dataset)

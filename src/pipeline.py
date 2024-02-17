@@ -56,7 +56,7 @@ def mdx(
     df = pd.concat([df, one_hot_encoded], axis=1)
     del df['Label']
 
-    # TODO #1 - get rid of artifacts not needed
+    # Temporian preprocessing
     (feature_names, label_names,
      test_dataset,
      train_dataset,
