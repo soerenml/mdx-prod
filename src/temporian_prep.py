@@ -70,14 +70,17 @@ def temporian_eventset(
 
 
     ### Lookback ###
+    # Define the range of days to look back
     range_days_lookback = [x for x in range(1,days_lookback)]
 
+    # Define list of features to create lagged features (lookback)
     feature_list=['close', 'volume', 'low', 'high']
+
     for var in feature_list:
         lagged_sales_list: List[tp.EventSet] = []
 
         for horizon in range_days_lookback:
-            x = f_data[var].lag(tp.duration.days(horizon)) # change to days if needed.
+            x = f_data[var].lag(tp.duration.days(horizon))
             x = x.resample(f_data)
             x = x.rename(f"f_{var}_lag_{horizon}_d")
             lagged_sales_list.append(x)
@@ -91,13 +94,16 @@ def temporian_eventset(
     feature_list=['close', 'volume', 'low', 'high']
 
     for var in feature_list:
+        # Create a list based of EventSet
         moving_stats_list: List[tp.EventSet] = []
 
+        # Select variable with placeholder `var` from f_data EventSet and cast to float32
         float_sales = f_data[var].cast(tp.float32)
 
         for win_day in [2, 3, 5, 7, 10, 15, 30, 60, 90, 144]:
+
             # Define the duration for the days
-            win = tp.duration.days(win_day) # change to days if needed
+            win = tp.duration.days(win_day)
 
             # Calculate moving average
             x = float_sales.simple_moving_average(win).prefix(
