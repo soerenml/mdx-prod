@@ -18,7 +18,8 @@ def mdx(
     model_summary: str,
     verbose: int,
     lower_prob: float,
-    upper_prob: float
+    upper_prob: float,
+    tensorboard_callback: bool
 ):
     """
     Executes the MDX pipeline for trading strategy.
@@ -70,7 +71,8 @@ def mdx(
         train_dataset=tf_train_dataset,
         label_names=label_names,
         model_summary=model_summary,
-        verbose=verbose
+        verbose=verbose,
+        tensorboard_callback=tensorboard_callback
     )
 
     # Create predictions
